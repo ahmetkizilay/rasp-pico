@@ -5,8 +5,8 @@ include(pico_sdk_import.cmake)
 
 
 project(pico_projects C CXX ASM)
-set(CMAKE_C_STANDARD 11)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_C_STANDARD 23)
+set(CMAKE_CXX_STANDARD 23)
 
 
 if (PICO_SDK_VERSION_STRING VERSION_LESS "1.5.1")
