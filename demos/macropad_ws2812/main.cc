@@ -3,9 +3,7 @@
 #include "hardware/pio.h"
 #include "pico/stdlib.h"
 #include "ws2812_pio/ws2812_pio.h"
-
-#define MACROPAD_LED 13
-#define MACROPAD_NEOPIXEL 19
+#include "adafruit_macropad/adafruit_macropad.h"
 
 using ::crynsnd::WS2812;
 

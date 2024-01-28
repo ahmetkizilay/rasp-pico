@@ -9,6 +9,7 @@ target_link_libraries(macropad_ws2812
 PRIVATE
     pico_stdlib
     hardware_pio
+    adafruit_macropad
     ws2812_pio
 )
 

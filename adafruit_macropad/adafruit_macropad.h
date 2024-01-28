@@ -1,0 +1,7 @@
+#ifndef __crynsnd_adafruit_macropad_adafruit_macropad_h
+#define __crynsnd_adafruit_macropad_adafruit_macropad_h
+
+#define MACROPAD_LED 13
+#define MACROPAD_NEOPIXEL 19
+
+#endif  // __crynsnd_adafruit_macropad_adafruit_macropad_h
