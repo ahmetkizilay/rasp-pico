@@ -1,9 +1,10 @@
 #include <stdio.h>
 
-#include "hardware/pio.h"
-#include "pico/stdlib.h"
-#include "ws2812_pio/ws2812_pio.h"
 #include "adafruit_macropad/adafruit_macropad.h"
+#include "hardware/gpio.h"
+#include "hardware/pio.h"
+#include "pico/time.h"
+#include "ws2812_pio/ws2812_pio.h"
 
 using ::crynsnd::WS2812;
 
@@ -12,8 +13,6 @@ static inline uint32_t make_color(uint8_t r, uint8_t g, uint8_t b) {
 }
 
 int main() {
-  stdio_init_all();
-
   gpio_init(MACROPAD_LED);
   gpio_set_dir(MACROPAD_LED, GPIO_OUT);
 
@@ -29,6 +28,10 @@ int main() {
     ws2012.put_blocking(make_color(0xff, 0, 0) << 8u);
     ws2012.put_blocking(make_color(0, 0xff, 0) << 8u);
     ws2012.put_blocking(make_color(0, 0, 0xff) << 8u);
+
+    ws2012.put_blocking(0);
+    ws2012.put_blocking(0);
+    ws2012.put_blocking(0);
 
     ws2012.put_blocking(make_color(0xff, 0, 0) << 8u);
     ws2012.put_blocking(make_color(0, 0xff, 0) << 8u);
