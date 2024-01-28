@@ -16,6 +16,5 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
-add_subdirectory(blink)
 add_subdirectory(demos)
 add_subdirectory(ws2812_pio)

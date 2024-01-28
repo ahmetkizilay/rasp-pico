@@ -2,3 +2,4 @@
 add_subdirectory(macropad_blink)
 add_subdirectory(macropad_ws2812)
 add_subdirectory(pio_blink)
+add_subdirectory(blink)
