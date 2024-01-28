@@ -1,0 +1,3 @@
+
+add_subdirectory(macropad_blink)
+add_subdirectory(pio_blink)

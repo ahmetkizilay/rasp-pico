@@ -17,3 +17,4 @@ endif()
 pico_sdk_init()
 
 add_subdirectory(blink)
+add_subdirectory(demos)
