@@ -1,0 +1,84 @@
+; based on Raspberry PI SDK example
+;
+; Driving NEOPIXEL ws2812 LEDs.
+; 
+; We set aside one bit (side_set) to set low and high while the instructions
+; are executed. 
+;
+ 
+
+.program ws2812
+
+; declare that we will be reserving a bit to drive
+; a pin LOW/HIGH.
+.side_set 1
+
+; Define the length of three stages to ws2812:
+; T1 is the first stage when we always send HIGH
+; T2 is either LOW or HIGH, which determines the actual
+; information being sent to LEDs.
+; T3 is the last stage when we always send LOW
+; These values correspond to clock cycles. Note that
+; these are not necessarily the same as the hardware clock
+; cycle. It is possible to divide the clock for PIO programs. 
+.define public T1 2
+.define public T2 5
+.define public T3 3
+
+.wrap_target
+bitloop:
+    ; pull data from the FIFO
+    ; the program halts here when there is no data
+    ; but the side action still happens at every cycle.
+    ; So we will keep sending 0 even when there is no new
+    ; data to be processed.
+    ; Even though this is the beginning of the program,
+    ; this is actually the last stage of the protocol.
+    out x, 1            side 0 [T3 - 1]
+    ; at this point we finally pulled some data in the previous
+    ; instruction. So the cycle finally started with side bit
+    ; set to HIGH.
+    ; With this jmp statement we determine if we are doing a HIGH
+    ; or LOW cycle.
+    jmp !x do_zero     side 1 [T1 - 1]
+do_one:
+    ; keep sending HIGH and then jump to the beginning
+    ; to finish the cycle.
+    jmp bitloop     side 1 [T2 - 1]
+do_zero:
+    ; send LOW and return to the beginning to finish the
+    ; cycle. The instruction is nop, because we don't need
+    ; to do anything, but just wait.
+    ; the following .wrap statement will take us to the
+    ; beginning, so we don't need a jump instruction.
+    nop             side 0 [T2 - 1]
+.wrap
+
+%c-sdk {
+#include "hardware/clocks.h"
+
+static inline void ws2812_program_init(PIO pio, uint sm, uint offset,
+                                        uint pin, float baud_rate, bool rgbw) {
+  // Initialize one pin out.
+  pio_gpio_init(pio, pin);
+  pio_sm_set_consecutive_pindirs(pio, sm, pin, 1, true);
+
+  pio_sm_config c = ws2812_program_get_default_config(offset);
+  // Let sideset bit to use the initialized pin.
+  sm_config_set_sideset_pins(&c, pin);
+  // Shift either 32 to 24 bits from the FIFO based on the LED type.
+  sm_config_set_out_shift(&c, /*shift_right=*/false, /*autopull=*/true,
+                          rgbw ? 32 : 24);
+  sm_config_set_fifo_join(&c, PIO_FIFO_JOIN_TX);
+
+  // Set clocking speed based on the baud rate argument.
+  int cycles_per_bit = ws2812_T1 + ws2812_T2 + ws2812_T3;
+  float div = clock_get_hz(clk_sys) / (baud_rate * cycles_per_bit);
+  sm_config_set_clkdiv(&c, div);
+
+  // Init and start the state machine.
+  pio_sm_init(pio, sm, offset, &c);
+  pio_sm_set_enabled(pio, sm, true);
+}
+
+%}
