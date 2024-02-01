@@ -1,7 +1,9 @@
 #include "sh1106_spi/sh1106_spi.h"
 
+#include <malloc.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <string.h>
 
 #include "hardware/gpio.h"
 #include "hardware/spi.h"
@@ -9,7 +11,18 @@
 
 namespace crynsnd {
 
-void SH1106::writeData(uint8_t val) { spi_write_blocking(spi_, &val, 1); }
+SH1106::~SH1106() {
+  if (buffer_ != nullptr) {
+    free(buffer_);
+    buffer_ = nullptr;
+  }
+  if (write_pad_ != nullptr) {
+    free(write_pad_);
+    write_pad_ = nullptr;
+  }
+}
+
+void SH1106::writePad() { spi_write_blocking(spi_, write_pad_, 2); }
 
 void SH1106::writeCommand(uint8_t* data, size_t len) {
   asm volatile("nop \n nop \n nop");
@@ -85,32 +98,29 @@ void SH1106::init() {
 }
 
 void SH1106::clearDisplay() {
-  for (int j = 0; j < SH1106_PAGE_COUNT; j += 1) {
-    writeCommand(0xB0 | j);
-
-    writeData(0);
-    writeData(0);
-
-    for (int i = 0; i < SH1106_WIDTH; i += 1) {
-      writeData(0);
-    }
-    writeData(0);
-    writeData(0);
-  }
+  memset(buffer_, 0, buffer_size_);
+  dirty_ = 255;
 }
 
-void SH1106::write() {
-  writeCommand(0xB5);
+void SH1106::setPixel(uint8_t x, uint8_t y) {
+  uint8_t page = (y / 8);
+  uint8_t offset = (y % 8);
+  buffer_[(x + (SH1106_PADDING / 2)) +
+          (page * (SH1106_WIDTH + SH1106_PADDING))] |= (1 << offset);
+  dirty_ |= (1 << page);
+}
 
-  writeData(0);
-  writeData(0);
+void SH1106::flush() {
+  for (int j = 0; j < SH1106_PAGE_COUNT; j += 1) {
+    if ((dirty_ & (1 << j)) == 0) {
+      continue;
+    }
+    writeCommand(0xB0 | j);
 
-  for (int i = 0; i < SH1106_WIDTH; i += 1) {
-    writeData(0b11111111);
+    spi_write_blocking(spi_, &buffer_[j * (SH1106_WIDTH + SH1106_PADDING)],
+                       SH1106_WIDTH + SH1106_PADDING);
   }
-
-  writeData(0);
-  writeData(0);
+  dirty_ = 0;
 }
 
 }  // namespace crynsnd

@@ -1,6 +1,7 @@
 #ifndef __crynsnd_sh1106_spi_sh1106_spi_h
 #define __crynsnd_sh1106_spi_sh1106_spi_h
 
+#include <malloc.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -8,6 +9,7 @@
 
 #define SH1106_PAGE_COUNT 8
 #define SH1106_WIDTH 128
+#define SH1106_PADDING 4
 
 namespace crynsnd {
 
@@ -23,13 +25,21 @@ class SH1106 {
         sck_pin_(sck_pin),
         cs_pin_(cs_pin),
         reset_pin_(reset_pin),
-        dc_pin_(dc_pin) {}
+        dc_pin_(dc_pin),
+        // +2 for padding in both sides
+        buffer_size_((SH1106_WIDTH + SH1106_PADDING) * SH1106_PAGE_COUNT),
+        dirty_(0) {
+    buffer_ = (uint8_t*)malloc(buffer_size_);
+  }
+
+  ~SH1106();
 
   void init();
   void clearDisplay();
+  void setPixel(uint8_t x, uint8_t y);
 
-  // just display something arbitrary for now.
-  void write();
+  void flush();
+
  private:
   spi_inst_t* spi_;
   uint8_t rx_pin_;
@@ -39,9 +49,14 @@ class SH1106 {
   uint8_t reset_pin_;
   uint8_t dc_pin_;
 
+  uint32_t buffer_size_;
+  uint8_t dirty_;
+  uint8_t* buffer_;
+  uint8_t* write_pad_;
+
   void writeCommand(uint8_t command);
   void writeCommand(uint8_t* data, size_t len);
-  void writeData(uint8_t val);
+  void writePad();
 };
 
 }  // namespace crynsnd
