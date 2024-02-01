@@ -18,5 +18,6 @@ pico_sdk_init()
 
 add_subdirectory(adafruit_macropad)
 add_subdirectory(demos)
+add_subdirectory(font)
 add_subdirectory(sh1106_spi)
 add_subdirectory(ws2812_pio)
