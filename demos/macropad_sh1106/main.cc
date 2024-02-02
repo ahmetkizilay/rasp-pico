@@ -8,6 +8,18 @@
 
 using ::crynsnd::SH1106;
 
+void drawOnePixelAtATime(SH1106& sh1106) {
+    for (int y = 0; y < 64; y++) {
+      for (int x = 0; x < 128; x++) {
+        sh1106.setPixel(x, y);
+        sh1106.flush();
+        sleep_ms(10);
+      }
+    }
+    sh1106.clearDisplay();
+    sh1106.flush();
+}
+
 int main() {
   stdio_init_all();
   SH1106 sh1106(spi1, MACROPAD_DISPLAY_MISO, MACROPAD_DISPLAY_MOSI,
@@ -17,23 +29,7 @@ int main() {
   sh1106.clearDisplay();
   sh1106.flush();
 
-  // Fill the entire screen one pixel at a time.
-  int x = 0;
-  int y = 0;
   while (true) {
-    sh1106.setPixel(x, y);
-    sh1106.flush();
-    sleep_ms(10);
-    x += 1;
-    if (x == 128) {
-      x = 0;
-      y += 1;
-      if (y == 64) {
-        y = 0;
-
-        sh1106.clearDisplay();
-        sh1106.flush();
-      }
-    }
+    drawOnePixelAtATime(sh1106);
   }
 }
