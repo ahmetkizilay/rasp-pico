@@ -37,6 +37,7 @@ class SH1106 {
   void init();
   void clearDisplay();
   void setPixel(uint8_t x, uint8_t y);
+  void setData(uint8_t x, uint8_t y, const uint8_t* val, size_t len);
 
   void flush();
 

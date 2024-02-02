@@ -110,6 +110,13 @@ void SH1106::setPixel(uint8_t x, uint8_t y) {
   dirty_ |= (1 << page);
 }
 
+void SH1106::setData(uint8_t x, uint8_t y, const uint8_t* val, size_t len) {
+  uint16_t offset =
+      x + (SH1106_PADDING / 2) + (y * (SH1106_WIDTH + SH1106_PADDING));
+  memcpy(&buffer_[offset], val, len);
+  dirty_ |= (1 << y);
+}
+
 void SH1106::flush() {
   for (int j = 0; j < SH1106_PAGE_COUNT; j += 1) {
     if ((dirty_ & (1 << j)) == 0) {

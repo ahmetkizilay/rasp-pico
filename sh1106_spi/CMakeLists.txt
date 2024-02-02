@@ -13,7 +13,7 @@ target_include_directories(sh1106_spi
 )
 
 target_link_libraries(sh1106_spi 
-  PRIVATE
+  PUBLIC
     pico_stdlib
     hardware_gpio
     hardware_spi

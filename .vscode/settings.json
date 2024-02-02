@@ -1,6 +1,8 @@
 {
   "files.associations": {
     "pico.h": "c",
-    "time.h": "c"
+    "time.h": "c",
+    "*.tcc": "cpp",
+    "ostream": "cpp"
   }
 }

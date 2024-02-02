@@ -17,7 +17,7 @@ target_sources(dotmatrix_font
 )
 
 target_link_libraries(dotmatrix_font 
-PRIVATE
+  PUBLIC
     font
 )
 
