@@ -8,8 +8,9 @@
 namespace crynsnd {
 using ::crynsnd::fonts::Font;
 
-DisplayManager::DisplayManager(SH1106* sh1106, Font* font)
-    : sh1106_(sh1106), font_(font) {}
+DisplayManager::DisplayManager(std::unique_ptr<SH1106> sh1106,
+                               std::unique_ptr<Font> font)
+    : sh1106_(std::move(sh1106)), font_(std::move(font)) {}
 
 void DisplayManager::write(const std::string& text) {
   int x = 0;
@@ -20,7 +21,7 @@ void DisplayManager::write(const std::string& text) {
     // TODO: get the available width from the object.
     if (x + width >= 128) {
       break;
-    } 
+    }
     sh1106_->setData(x, 0, &font_->font[index], width);
     x += (width + DISPLAY_LETTER_SPACING);
   }

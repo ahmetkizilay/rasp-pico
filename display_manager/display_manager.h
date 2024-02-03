@@ -1,6 +1,7 @@
 #ifndef __crynsnd_display_manager_display_manager_h
 #define __crynsnd_display_manager_display_manager_h
 
+#include <memory>
 #include <string>
 
 #include "font/font.h"
@@ -11,13 +12,15 @@ namespace crynsnd {
 
 class DisplayManager {
  public:
-  explicit DisplayManager(SH1106* sh1106, fonts::Font* font);
+  explicit DisplayManager(std::unique_ptr<SH1106> sh1106,
+                          std::unique_ptr<fonts::Font> font);
 
   void write(const std::string& text);
   void clear();
+
  private:
-  SH1106* sh1106_;
-  fonts::Font* font_;
+  std::unique_ptr<SH1106> sh1106_;
+  std::unique_ptr<fonts::Font> font_;
 };
 
 }  // namespace crynsnd

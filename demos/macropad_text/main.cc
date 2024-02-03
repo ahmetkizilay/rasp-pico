@@ -12,14 +12,14 @@ using ::crynsnd::SH1106;
 using ::crynsnd::fonts::DotMatrix;
 
 int main() {
-  SH1106 sh1106(spi1, MACROPAD_DISPLAY_MISO, MACROPAD_DISPLAY_MOSI,
-                MACROPAD_DISPLAY_SCK, MACROPAD_DISPLAY_CS,
-                MACROPAD_DISPLAY_RESET, MACROPAD_DISPLAY_DC);
-  sh1106.init();
+  std::unique_ptr<SH1106> sh1106 = std::make_unique<SH1106>(
+      spi1, MACROPAD_DISPLAY_MISO, MACROPAD_DISPLAY_MOSI, MACROPAD_DISPLAY_SCK,
+      MACROPAD_DISPLAY_CS, MACROPAD_DISPLAY_RESET, MACROPAD_DISPLAY_DC);
+  sh1106->init();
 
-  DotMatrix font;
+  std::unique_ptr<DotMatrix> font = std::make_unique<DotMatrix>();
 
-  DisplayManager display(&sh1106, &font);
+  DisplayManager display(std::move(sh1106), std::move(font));
   display.clear();
 
   display.write("HELLO WORLD! LOREM IPSUM DOLOR SIT AMET CONSECTETUR");
