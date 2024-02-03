@@ -16,10 +16,9 @@ class DisplayManager {
                           std::unique_ptr<fonts::Font> font);
 
   void write(const std::string& text);
-  void bufferClear();
-  void bufferWrite(uint x, uint y, const std::string& text);
-  void bufferFlush();
-  void clear();
+  void write(uint x, uint y, const std::string& text, bool commit = true);
+  void clear(bool commit = true);
+  inline void flush() { sh1106_->flush(); }
 
  private:
   std::unique_ptr<SH1106> sh1106_;
