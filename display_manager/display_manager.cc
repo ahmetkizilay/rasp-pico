@@ -28,6 +28,26 @@ void DisplayManager::write(const std::string& text) {
   sh1106_->flush();
 }
 
+void DisplayManager::bufferWrite(uint x, uint y, const std::string& text) {
+  for (int i = 0; i < text.length(); i++) {
+    const int index = font_->GetLetterIndex(text[i]);
+    const int width = font_->GetLetterWidth(text[i]);
+    // Prevent overflow
+    // TODO: get the available width from the object.
+    if (x + width >= 128) {
+      break;
+    }
+    sh1106_->setData(x, y, &font_->font[index], width);
+    x += (width + DISPLAY_LETTER_SPACING);
+  }
+}
+
+void DisplayManager::bufferFlush() { sh1106_->flush(); }
+
+void DisplayManager::bufferClear() {
+  sh1106_->clearDisplay();
+}
+
 void DisplayManager::clear() {
   sh1106_->clearDisplay();
   sh1106_->flush();

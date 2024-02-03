@@ -1,5 +1,6 @@
 
 add_subdirectory(macropad_blink)
+add_subdirectory(macropad_keypress)
 add_subdirectory(macropad_text)
 add_subdirectory(macropad_sh1106)
 add_subdirectory(macropad_ws2812)

@@ -16,6 +16,9 @@ class DisplayManager {
                           std::unique_ptr<fonts::Font> font);
 
   void write(const std::string& text);
+  void bufferClear();
+  void bufferWrite(uint x, uint y, const std::string& text);
+  void bufferFlush();
   void clear();
 
  private:
