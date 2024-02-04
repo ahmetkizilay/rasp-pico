@@ -1,4 +1,4 @@
-
+add_subdirectory(asm_hello)
 add_subdirectory(macropad_blink)
 add_subdirectory(macropad_keypress)
 add_subdirectory(macropad_text)
