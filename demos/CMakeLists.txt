@@ -1,6 +1,7 @@
 add_subdirectory(asm_hello)
 add_subdirectory(blink)
 add_subdirectory(macropad_blink)
+add_subdirectory(macropad_buzzer)
 add_subdirectory(macropad_keypress)
 add_subdirectory(macropad_text)
 add_subdirectory(macropad_sh1106)
