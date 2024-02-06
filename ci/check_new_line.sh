@@ -3,12 +3,7 @@
 
 # collect the list of files changed
 
-files_changed=()
-while read line
-do
-  echo "$line"
-  files_changed+=( "$line" )
-done
+files_changed=( "${@}" )
 
 echo "checking updated files"
 

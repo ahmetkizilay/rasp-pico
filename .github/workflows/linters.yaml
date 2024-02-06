@@ -10,5 +10,12 @@ jobs:
       - run: echo " branch=${{ github.ref }}, commit_hash=${{ github.sha }}."
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Check for new lines
-        run: ./ci/get_updated_files.sh ${{ github.sha }} | ./ci/check_new_line.sh
+        with:
+          fetch-depth: 0
+      - name: Get changed files
+        id: modified-files
+        run: echo "modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+      - name: Check new lines
+        run: |
+          ./ci/check_new_line.sh ${{ steps.modified-files.outputs.modified_files }} 
+        
