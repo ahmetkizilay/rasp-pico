@@ -1,21 +1,22 @@
 name: Linter
-run-name: ${{ github.actor }} is testing out GitHub Actions 🚀
-on: [push]
+run-name: ${{ github.actor }} triggered pull request
+on:
+  pull_request:
+    branches:
+      - 'main'
 jobs:
   Linter:
     runs-on: ubuntu-latest
     steps:
       - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo " This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo " branch=${{ github.ref }}, commit_hash=${{ github.sha }}."
       - name: Check out repository code
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 2
       - name: Get changed files
         id: modified-files
         run: echo "modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
-      - name: Check new lines
+      - name: Assert new line at the end of line
         run: |
           ./ci/check_new_line.sh ${{ steps.modified-files.outputs.modified_files }} 
         
