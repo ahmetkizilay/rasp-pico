@@ -1,0 +1,24 @@
+name: Linter
+run-name: ${{ github.actor }} triggered pull request
+on:
+  pull_request:
+    branches:
+      - 'main'
+jobs:
+  Linter:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
+      - name: Check out repository code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+      - name: Pull main as well
+        run: git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
+      - name: Get changed files
+        id: modified-files
+        # run: echo "modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+        run: echo "modified_files=$(git diff --name-only origin/${{ github.base_ref }} -r | xargs)" >> $GITHUB_OUTPUT
+      - name: Assert new line at the end of line
+        run: |
+          ./ci/check_new_line.sh ${{ steps.modified-files.outputs.modified_files }}
