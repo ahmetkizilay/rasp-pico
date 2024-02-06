@@ -6,6 +6,7 @@
 files_changed=()
 while read line
 do
+  echo "$line"
   files_changed+=( "$line" )
 done
 
