@@ -9,6 +9,8 @@ do
   files_changed+=( "$line" )
 done
 
+echo "checking updated files"
+
 num_failed=0
 # process each file
 for f in ${files_changed[@]}; do
