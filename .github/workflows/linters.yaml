@@ -8,7 +8,7 @@ jobs:
       - run: echo " The job was automatically triggered by a ${{ github.event_name }} event."
       - run: echo " This job is now running on a ${{ runner.os }} server hosted by GitHub!"
       - run: echo " branch=${{ github.ref }}, commit_hash=${{ github.sha }}."
-      - name: Updated files
-        run: git diff-tree --no-commit-id --name-only ${{ github.sha }} -r
       - name: Check out repository code
         uses: actions/checkout@v4
+      - name: Updated files
+        run: git diff-tree --no-commit-id --name-only ${{ github.sha }} -r
