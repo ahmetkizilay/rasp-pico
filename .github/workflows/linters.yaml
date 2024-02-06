@@ -10,5 +10,5 @@ jobs:
       - run: echo " branch=${{ github.ref }}, commit_hash=${{ github.sha }}."
       - name: Check out repository code
         uses: actions/checkout@v4
-      - name: Updated files
-        run: git diff-tree --no-commit-id --name-only ${{ github.sha }} -r
+      - name: Check for new lines
+        run: ./ci/get_updated_files.sh ${{ github.sha }} | ./ci/check_new_line.sh
