@@ -15,3 +15,5 @@ PRIVATE
 )
 
 pico_add_extra_outputs(macropad_text)
+
+pico_flash(macropad_text)

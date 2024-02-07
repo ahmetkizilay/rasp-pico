@@ -14,3 +14,5 @@ PRIVATE
 )
 
 pico_add_extra_outputs(pio_blink)
+
+pico_flash(pio_blink)

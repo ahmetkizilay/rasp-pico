@@ -17,3 +17,5 @@ pico_enable_stdio_usb(macropad_sh1106 1)
 pico_enable_stdio_uart(macropad_sh1106 0)
 
 pico_add_extra_outputs(macropad_sh1106)
+
+pico_flash(macropad_sh1106)

@@ -11,3 +11,5 @@ pico_enable_stdio_usb(macropad_buzzer 1)
 pico_enable_stdio_uart(macropad_buzzer 0)
 
 pico_add_extra_outputs(macropad_buzzer)
+
+pico_flash(macropad_buzzer)
