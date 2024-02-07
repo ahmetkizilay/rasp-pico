@@ -3,7 +3,6 @@
 #include "pico/time.h"
 
 using ::crynsnd::AdafruitMacropad;
-using ::crynsnd::DisplayBuffer;
 using ::crynsnd::DisplayManager;
 
 int main() {
