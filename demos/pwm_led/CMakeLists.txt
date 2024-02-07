@@ -8,3 +8,5 @@ target_link_libraries(pwm_led
 
 
 pico_add_extra_outputs(pwm_led)
+
+pico_flash(pwm_led)

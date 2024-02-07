@@ -13,3 +13,5 @@ target_link_libraries(macropad_keypress
 )
 
 pico_add_extra_outputs(macropad_keypress)
+
+pico_flash(macropad_keypress)

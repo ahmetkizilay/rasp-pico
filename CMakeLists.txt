@@ -16,6 +16,18 @@ endif()
 # Initialize the SDK
 pico_sdk_init()
 
+macro(pico_flash TARGET)
+get_target_property(target_type ${TARGET} TYPE)
+if (NOT target_type STREQUAL "EXECUTABLE")
+  message(FATAL_ERROR "${TARGET} is not executable!")
+endif ()
+add_custom_target(${TARGET}_flash
+  COMMAND sudo picotool info
+  COMMAND sudo picotool load $<TARGET_FILE_DIR:${TARGET}>/${TARGET}.uf2 && sudo picotool reboot
+  DEPENDS ${TARGET}
+)
+endmacro()
+
 add_subdirectory(adafruit_macropad)
 add_subdirectory(demos)
 add_subdirectory(display_manager)

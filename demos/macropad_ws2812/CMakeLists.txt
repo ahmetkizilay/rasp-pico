@@ -14,3 +14,5 @@ PRIVATE
 
 pico_add_extra_outputs(macropad_ws2812)
 
+pico_flash(macropad_ws2812)
+
