@@ -15,6 +15,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 2
-      - run: mkdir build
+      - name: Configure CMake
+        run: cmake --no-warn-unused-cli -DCMAKE_BUILD_TYPE:STRING=Debug -DCMAKE_EXPORT_COMPILE_COMMANDS:BOOL=TRUE -DCMAKE_C_COMPILER:FILEPATH=/usr/bin/arm-none-eabi-gcc -DCMAKE_CXX_COMPILER:FILEPATH=/usr/bin/arm-none-eabi-g++ -S${{ github.workspace }} -B${{ github.workspace }}/build -G "Unix Makefiles"
       - name: Build All
-        run: cmake --build ./build --config Debug --target all --
+        run: cmake --build ${{ github.workspace }}/build --config Debug --target all -j 6 --
