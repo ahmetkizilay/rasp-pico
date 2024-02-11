@@ -1,3 +1,4 @@
+add_subdirectory(asm_gpio)
 add_subdirectory(asm_hello)
 add_subdirectory(asm_uppercase)
 add_subdirectory(blink)
