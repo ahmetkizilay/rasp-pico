@@ -1,21 +1,12 @@
 cmake_minimum_required(VERSION 3.25)
 
-# Pull in SDK (must be before project)
-set(PICO_SDK_FETCH_FROM_GIT true)
-set(PICO_SDK_FETCH_FROM_GIT_TAG "1.5.1")
-include(pico_sdk_import.cmake)
-
+include(cmake/deps.cmake)
 
 project(pico_projects C CXX ASM)
 set(CMAKE_C_STANDARD 23)
 set(CMAKE_CXX_STANDARD 23)
 
-
-if (PICO_SDK_VERSION_STRING VERSION_LESS "1.5.1")
-    message(FATAL_ERROR "Raspberry Pi Pico SDK version 1.5.1 (or later) required. Your version is ${PICO_SDK_VERSION_STRING}")
-endif()
-
-# Initialize the SDK
+# Initialize the pico_sdk
 pico_sdk_init()
 
 macro(pico_flash TARGET)
