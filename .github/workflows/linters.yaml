@@ -17,7 +17,9 @@ jobs:
         run: git fetch origin ${{ github.base_ref }}:refs/remotes/origin/${{ github.base_ref }}
       - name: Get changed files
         id: modified-files
-        # run: echo "modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
+        # Get the status and name of the changed files.
+        # Filter out deleted files (we can't lint-check non-existent files)
+        # We may need to handle some other types of changes, add them as needed.
         run: |
           modified_files=$(git diff --name-status origin/${{ github.base_ref }} -r | awk '$1 != "D" {print $2}' | xargs)
           echo "modified_files=$modified_files" >> $GITHUB_OUTPUT
