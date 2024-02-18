@@ -18,7 +18,7 @@ jobs:
       - name: Get changed files
         id: modified-files
         # run: echo "modified_files=$(git diff --name-only ${{ github.event.before }} ${{ github.event.after }} | xargs)" >> $GITHUB_OUTPUT
-        run: modified_files=$(git diff --name-status origin/${{ github.base_ref }} -r | awk '$1 != "D" {print $2}' | xargs) && echo $modified_files >> $GITHUB_OUTPUT
+        run: modified_files=$(git diff --name-status origin/${{ github.base_ref }} -r | awk '$1 != "D" {print $2}' | xargs) && echo "modified_files=$modified_files" >> $GITHUB_OUTPUT
       - name: Assert new line at the end of line
         run: |
           ./ci/check_new_line.sh ${{ steps.modified-files.outputs.modified_files }}
