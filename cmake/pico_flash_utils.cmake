@@ -28,11 +28,22 @@ if (NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/data)
   message(FATAL_ERROR "No data directory found in ${CMAKE_CURRENT_SOURCE_DIR}")
 endif ()
 
-# create a custom command to generate the data.bin file
-# this will concatenate all the files in the data directory into a single binary file
-add_custom_command(TARGET ${CURRENT_TARGET_NAME} PRE_BUILD
+
+file(GENERATE OUTPUT ${TARGET}_generate_data_include
+  INPUT ${CMAKE_SOURCE_DIR}/cmake/generate_data_include.sh
+)
+
+add_custom_target(${TARGET}_gen_data
+  COMMAND echo "Generating data include file..."
+  COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/generated
+  COMMAND mkdir -p ${CMAKE_CURRENT_BINARY_DIR}/generated
+  COMMAND sh $<TARGET_FILE_DIR:${TARGET}>/${TARGET}_generate_data_include ${CMAKE_CURRENT_SOURCE_DIR}/data/
+
+  # create a custom command to generate the data.bin file
+  # this will concatenate all the files in the data directory into a single binary file
+  COMMAND echo "Generating data.bin..."
   COMMAND touch data.bin && cp /dev/null data.bin
-  COMMAND cat ${CMAKE_CURRENT_SOURCE_DIR}/data/* >> data.bin
+  COMMAND ls -1 ${CMAKE_CURRENT_SOURCE_DIR}/data/* | xargs cat >> data.bin
 )
 
 # generate a script to flash the binary as well as the data.bin file to the pico
