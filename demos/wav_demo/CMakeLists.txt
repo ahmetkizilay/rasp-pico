@@ -4,6 +4,11 @@ add_executable(${CURRENT_TARGET_NAME}
     main.cc
 )
 
+add_dependencies(${CURRENT_TARGET_NAME} ${CURRENT_TARGET_NAME}_gen_data)
+
+target_include_directories(${CURRENT_TARGET_NAME} PRIVATE
+  ${CMAKE_CURRENT_BINARY_DIR}/generated
+)
 target_link_libraries(${CURRENT_TARGET_NAME} 
   pico_stdlib 
   adafruit_macropad 
