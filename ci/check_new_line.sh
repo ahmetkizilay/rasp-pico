@@ -5,12 +5,24 @@
 
 files_changed=( "${@}" )
 
+# list of excluded file types
+excluded_file_types=(".wav")
+
 echo "checking updated files"
 
 num_failed=0
 # process each file
 for f in ${files_changed[@]}; do
   echo -n "$f"
+
+  # check if the file type is excluded
+  for excluded in ${excluded_file_types[@]}; do
+    if [[ "$f" == *"$excluded" ]]; then
+      echo " - skipped"
+      continue 2
+    fi
+  done
+  
   if [ "$(tail -c 1 "$f" | wc -l)" -eq 0 ]; then
     # red cross mark
     printf " \033[31m\xE2\x9D\x8C\033[0m\n"
