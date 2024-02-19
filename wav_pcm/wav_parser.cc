@@ -8,7 +8,8 @@
 namespace crynsnd {
 
 // static
-std::unique_ptr<WaveFile> WaveFile::Create(const uint8_t *cursor) {
+std::unique_ptr<WaveFile> WaveFile::Create(const uintptr_t wav_address) {
+  const uint8_t *cursor = (const uint8_t *)wav_address;
   // print the next four chars from cursor.
   // the output should look like "RIFF"
   char tag[5] = {0};
@@ -140,6 +141,11 @@ std::unique_ptr<WaveFile> WaveFile::Create(const uint8_t *cursor) {
     data_size |= (*(cursor + i) << (i * 8));
   }
   cursor += 4;
+  const uintptr_t data_address = (const uintptr_t)cursor;
+
+  // we will figure this out later...
+  uint16_t min_sample = 0;
+  uint16_t max_sample = 0;
 
   const WaveFormat wave_format{
       .audio_format = audio_format,
@@ -148,9 +154,11 @@ std::unique_ptr<WaveFile> WaveFile::Create(const uint8_t *cursor) {
       .byte_rate = byte_rate,
       .block_align = block_align,
       .bits_per_sample = bits_per_sample,
+      .min_sample = min_sample,
+      .max_sample = max_sample,
   };
 
-  return std::make_unique<WaveFile>(wave_format, data_size, cursor);
+  return std::make_unique<WaveFile>(wave_format, data_size, data_address);
 }
 
 }  // namespace crynsnd

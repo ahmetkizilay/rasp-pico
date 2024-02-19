@@ -10,7 +10,8 @@ target_include_directories(${CURRENT_TARGET_NAME} PRIVATE
   ${CMAKE_CURRENT_BINARY_DIR}/generated
 )
 target_link_libraries(${CURRENT_TARGET_NAME} 
-  pico_stdlib 
+  pico_stdlib
+  hardware_pwm
   adafruit_macropad 
   wav_pcm
 )
