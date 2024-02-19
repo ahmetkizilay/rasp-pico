@@ -15,8 +15,8 @@ void on_pwm_wrap() {
   // clear the interrupt
   pwm_clear_irq(pwm_gpio_to_slice_num(MACROPAD_BUZZER));
 
-  if (wav_position < (WAV_DATA_LENGTH<<1) - 1) {
-    pwm_set_gpio_level(MACROPAD_BUZZER, WAV_DATA[wav_position>>1]);
+  if (wav_position < (WAV_DATA_LENGTH<<2) - 1) {
+    pwm_set_gpio_level(MACROPAD_BUZZER, WAV_DATA[wav_position>>2]);
     wav_position++;
   } else {
     wav_position = 0;
@@ -44,7 +44,7 @@ int main() {
 
   // Set pwm config and enable it
   pwm_config config = pwm_get_default_config();
-  pwm_config_set_clkdiv(&config, 16.0f);
+  pwm_config_set_clkdiv(&config, 8.0f);
   pwm_config_set_wrap(&config, 250);
   pwm_init(slice_num, &config, true);
 
