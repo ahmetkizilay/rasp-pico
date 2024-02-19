@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.25)
 
 include(cmake/deps.cmake)
+include(cmake/pico_flash_utils.cmake)
 
 project(pico_projects C CXX ASM)
 set(CMAKE_C_STANDARD 23)
@@ -9,21 +10,10 @@ set(CMAKE_CXX_STANDARD 23)
 # Initialize the pico_sdk
 pico_sdk_init()
 
-macro(pico_flash TARGET)
-get_target_property(target_type ${TARGET} TYPE)
-if (NOT target_type STREQUAL "EXECUTABLE")
-  message(FATAL_ERROR "${TARGET} is not executable!")
-endif ()
-add_custom_target(${TARGET}_flash
-  COMMAND sudo picotool info
-  COMMAND sudo picotool load $<TARGET_FILE_DIR:${TARGET}>/${TARGET}.uf2 && sudo picotool reboot
-  DEPENDS ${TARGET}
-)
-endmacro()
-
 add_subdirectory(adafruit_macropad)
 add_subdirectory(demos)
 add_subdirectory(display_manager)
 add_subdirectory(font)
 add_subdirectory(sh1106_spi)
+add_subdirectory(wav_pcm)
 add_subdirectory(ws2812_pio)
