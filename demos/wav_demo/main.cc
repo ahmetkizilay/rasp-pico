@@ -11,18 +11,40 @@
 
 // declaring these as global variables so that they can be accessed in the
 // interrupt handler.
+
+// How many times we want to play each sample.
+uint8_t reps = 4;
+// current repetition count
+uint8_t rep_count = 0;
+// how much to increment the position by.
+// For 8-bit samples, this is 1, and for 16-bit samples, this is 2.
+uint8_t pos_increment = 0;
+
 uint32_t wav_position = 0;
 uint32_t wav_length = 0;
 const uint8_t *wav_data = nullptr;
+uint16_t wav_bits_per_sample = 0;
 
 void on_pwm_wrap() {
   // clear the interrupt
   pwm_clear_irq(pwm_gpio_to_slice_num(TODBOT_OUT));
 
-  // Each sample is playing 4 times.
-  if (wav_position < (wav_length << 2) - 1) {
-    pwm_set_gpio_level(TODBOT_OUT, wav_data[wav_position>>2]);
-    wav_position += 1;
+  if (wav_position < wav_length) {
+    if (wav_bits_per_sample == 8) {
+      pwm_set_gpio_level(TODBOT_OUT, wav_data[wav_position]);
+
+    } else if (wav_bits_per_sample == 16) {
+      int16_t sample =
+          wav_data[wav_position] | (wav_data[wav_position + 1] << 8);
+      sample = sample / 256;
+      pwm_set_gpio_level(TODBOT_OUT, static_cast<uint8_t>(sample + 0x80));
+    }
+
+    rep_count += 1;
+    if (rep_count == reps) {
+      wav_position += pos_increment;
+      rep_count = 0;
+    }
   } else {
     wav_position = 0;
   }
@@ -34,7 +56,6 @@ int main() {
 
   stdio_init_all();
 
-  // initialize DataDescriptor array from file1.wav and file2.wav
   const crynsnd::DataDescriptor wav_files[] = {
       crynsnd::GetDataDescriptor("file1.wav"),
       crynsnd::GetDataDescriptor("file2.wav"),
@@ -66,15 +87,46 @@ int main() {
     printf("\n");
   }
 
-
   // Setting up the PWM for file3.wav
-  
+  // read a character and store it in a variable called file_index
+  int file_index = -1;
+  while (file_index == -1) {
+    printf("Enter the file index (0, 1, 2): ");
+    int received = getchar() - '0';
+    if (received >= 0 && received <= 2) {
+      file_index = received;
+      break;
+    } else {
+      printf("Invalid file index\n");
+    }
+  }
+  printf("Playing file: %d\n", file_index);
+
   std::unique_ptr<crynsnd::WaveFile> wav_file =
-      crynsnd::WaveFile::Create(wav_files[2].address);
+      crynsnd::WaveFile::Create(wav_files[file_index].address);
 
   wav_position = 0;
   wav_length = wav_file->GetDataSize();
   wav_data = wav_file->GetData();
+  wav_bits_per_sample = wav_file->GetWaveFormat().bits_per_sample;
+  // set pos_increment based on the bits per sample
+  pos_increment = wav_bits_per_sample / 8;
+  
+  int sample_rate_multiplier = 1;
+  switch (wav_file->GetWaveFormat().sample_rate) {
+    case 44100:
+      sample_rate_multiplier = 1;
+      break;
+    case 22050:
+      sample_rate_multiplier = 2;
+      break;
+    case 11025:
+      sample_rate_multiplier = 4;
+      break;
+    default:
+      break;
+  }
+
 
   // Initialize the PWM Pin
   gpio_set_function(TODBOT_OUT, GPIO_FUNC_PWM);
@@ -90,9 +142,10 @@ int main() {
   pwm_config config = pwm_get_default_config();
   // The clock speed is 176000 kHz, and the wrap value is 250.
   // The frequency of the PWM signal is 176000 / 250 = 704 kHz.
-  // With clock divider of 8, the frequency of the PWM signal is 704 / 8 = 88 kHz.
-  // We play each sample 4 times, so the frequency of the audio signal is 88 / 4 = 22 kHz.
-  pwm_config_set_clkdiv(&config, 8.0f);
+  // With clock divider of 8, the frequency of the PWM signal is 704 / 8 = 88
+  // kHz. We play each sample 4 times, so the frequency of the audio signal is
+  // 88 / 4 = 22 kHz.
+  pwm_config_set_clkdiv(&config, 4.0f * sample_rate_multiplier);
   pwm_config_set_wrap(&config, 250);
   pwm_init(slice_num, &config, true);
 
