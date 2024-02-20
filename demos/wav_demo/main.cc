@@ -24,6 +24,7 @@ uint32_t wav_length = 0;
 const uint8_t *wav_data = nullptr;
 uint16_t wav_bits_per_sample = 0;
 
+bool done_playing = false;
 
 void on_pwm_wrap() {
   // clear the interrupt
@@ -47,7 +48,78 @@ void on_pwm_wrap() {
     }
   } else {
     wav_position = 0;
+    done_playing = true;
   }
+}
+
+// Caution: Causes POP at the end of the audio.
+uint play_wav(const crynsnd::DataDescriptor *wav_files) {
+  // Setting up the PWM for file3.wav
+  // read a character and store it in a variable called file_index
+  int file_index = -1;
+  while (file_index == -1) {
+    printf("Enter the file index (0, 1, 2): ");
+    int received = getchar() - '0';
+    if (received >= 0 && received <= 2) {
+      file_index = received;
+      break;
+    } else {
+      printf("Invalid file index\n");
+    }
+  }
+  printf("Playing file: %d\n", file_index);
+
+  std::unique_ptr<crynsnd::WaveFile> wav_file =
+      crynsnd::WaveFile::Create(wav_files[file_index].address);
+
+  wav_position = 0;
+  wav_length = wav_file->GetDataSize();
+  wav_data = wav_file->GetData();
+  wav_bits_per_sample = wav_file->GetWaveFormat().bits_per_sample;
+  // set pos_increment based on the bits per sample
+  pos_increment = wav_bits_per_sample / 8;
+
+  int sample_rate_multiplier = 1;
+  switch (wav_file->GetWaveFormat().sample_rate) {
+    case 44100:
+      sample_rate_multiplier = 1;
+      break;
+    case 22050:
+      sample_rate_multiplier = 2;
+      break;
+    case 11025:
+      sample_rate_multiplier = 4;
+      break;
+    default:
+      break;
+  }
+
+  // Initialize the PWM Pin
+  gpio_set_function(TODBOT_OUT, GPIO_FUNC_PWM);
+  uint slice_num = pwm_gpio_to_slice_num(TODBOT_OUT);
+
+  // Set the PWM interrupt
+  pwm_clear_irq(slice_num);
+  irq_set_exclusive_handler(PWM_IRQ_WRAP, on_pwm_wrap);
+  pwm_set_irq_enabled(slice_num, true);
+  irq_set_enabled(PWM_IRQ_WRAP, true);
+
+  // Set pwm config and enable it
+  pwm_config config = pwm_get_default_config();
+  // The clock speed is 176000 kHz, and the wrap value is 250.
+  // The frequency of the PWM signal is 176000 / 250 = 704 kHz.
+  // With clock divider of 8, the frequency of the PWM signal is 704 / 8 = 88
+  // kHz. We play each sample 4 times, so the frequency of the audio signal is
+  // 88 / 4 = 22 kHz.
+  pwm_config_set_clkdiv(&config, 4.0f * sample_rate_multiplier);
+  pwm_config_set_wrap(&config, 250);
+  pwm_init(slice_num, &config, true);
+
+  pwm_set_gpio_level(TODBOT_OUT, 0);
+
+  done_playing = false;
+
+  return slice_num;
 }
 
 int main() {
@@ -87,71 +159,14 @@ int main() {
     printf("\n");
   }
 
-  // Setting up the PWM for file3.wav
-  // read a character and store it in a variable called file_index
-  int file_index = -1;
-  while (file_index == -1) {
-    printf("Enter the file index (0, 1, 2): ");
-    int received = getchar() - '0';
-    if (received >= 0 && received <= 2) {
-      file_index = received;
-      break;
-    } else {
-      printf("Invalid file index\n");
-    }
-  }
-  printf("Playing file: %d\n", file_index);
-
-  std::unique_ptr<crynsnd::WaveFile> wav_file =
-      crynsnd::WaveFile::Create(wav_files[file_index].address);
-
-  wav_position = 0;
-  wav_length = wav_file->GetDataSize();
-  wav_data = wav_file->GetData();
-  wav_bits_per_sample = wav_file->GetWaveFormat().bits_per_sample;
-  // set pos_increment based on the bits per sample
-  pos_increment = wav_bits_per_sample / 8;
-  
-  int sample_rate_multiplier = 1;
-  switch (wav_file->GetWaveFormat().sample_rate) {
-    case 44100:
-      sample_rate_multiplier = 1;
-      break;
-    case 22050:
-      sample_rate_multiplier = 2;
-      break;
-    case 11025:
-      sample_rate_multiplier = 4;
-      break;
-    default:
-      break;
-  }
-
-
-  // Initialize the PWM Pin
-  gpio_set_function(TODBOT_OUT, GPIO_FUNC_PWM);
-  uint slice_num = pwm_gpio_to_slice_num(TODBOT_OUT);
-
-  // Set the PWM interrupt
-  pwm_clear_irq(slice_num);
-  pwm_set_irq_enabled(slice_num, true);
-  irq_set_exclusive_handler(PWM_IRQ_WRAP, on_pwm_wrap);
-  irq_set_enabled(PWM_IRQ_WRAP, true);
-
-  // Set pwm config and enable it
-  pwm_config config = pwm_get_default_config();
-  // The clock speed is 176000 kHz, and the wrap value is 250.
-  // The frequency of the PWM signal is 176000 / 250 = 704 kHz.
-  // With clock divider of 8, the frequency of the PWM signal is 704 / 8 = 88
-  // kHz. We play each sample 4 times, so the frequency of the audio signal is
-  // 88 / 4 = 22 kHz.
-  pwm_config_set_clkdiv(&config, 4.0f * sample_rate_multiplier);
-  pwm_config_set_wrap(&config, 250);
-  pwm_init(slice_num, &config, true);
-
-  pwm_set_gpio_level(TODBOT_OUT, 0);
+  uint slice_num = play_wav(wav_files);
 
   while (1) {
     tight_loop_contents();
+    if (done_playing) {
+      pwm_set_enabled(slice_num, false);
+      printf("Done playing\n");
+      slice_num = play_wav(wav_files);
+    }
   }
 }
