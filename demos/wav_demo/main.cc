@@ -11,7 +11,6 @@
 
 // declaring these as global variables so that they can be accessed in the
 // interrupt handler.
-
 // How many times we want to play each sample.
 uint8_t reps = 4;
 // current repetition count
@@ -24,6 +23,7 @@ uint32_t wav_position = 0;
 uint32_t wav_length = 0;
 const uint8_t *wav_data = nullptr;
 uint16_t wav_bits_per_sample = 0;
+
 
 void on_pwm_wrap() {
   // clear the interrupt
@@ -146,6 +146,37 @@ int main() {
   // kHz. We play each sample 4 times, so the frequency of the audio signal is
   // 88 / 4 = 22 kHz.
   pwm_config_set_clkdiv(&config, 4.0f * sample_rate_multiplier);
+  pwm_config_set_wrap(&config, 250);
+  pwm_init(slice_num, &config, true);
+
+  pwm_set_gpio_level(TODBOT_OUT, 0);
+
+  // Setting up the PWM for file3.wav
+  
+  std::unique_ptr<crynsnd::WaveFile> wav_file =
+      crynsnd::WaveFile::Create(wav_files[2].address);
+
+  wav_position = 0;
+  wav_length = wav_file->GetDataSize();
+  wav_data = wav_file->GetData();
+
+  // Initialize the PWM Pin
+  gpio_set_function(TODBOT_OUT, GPIO_FUNC_PWM);
+  uint slice_num = pwm_gpio_to_slice_num(TODBOT_OUT);
+
+  // Set the PWM interrupt
+  pwm_clear_irq(slice_num);
+  pwm_set_irq_enabled(slice_num, true);
+  irq_set_exclusive_handler(PWM_IRQ_WRAP, on_pwm_wrap);
+  irq_set_enabled(PWM_IRQ_WRAP, true);
+
+  // Set pwm config and enable it
+  pwm_config config = pwm_get_default_config();
+  // The clock speed is 176000 kHz, and the wrap value is 250.
+  // The frequency of the PWM signal is 176000 / 250 = 704 kHz.
+  // With clock divider of 8, the frequency of the PWM signal is 704 / 8 = 88 kHz.
+  // We play each sample 4 times, so the frequency of the audio signal is 88 / 4 = 22 kHz.
+  pwm_config_set_clkdiv(&config, 8.0f);
   pwm_config_set_wrap(&config, 250);
   pwm_init(slice_num, &config, true);
 
