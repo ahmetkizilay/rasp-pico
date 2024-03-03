@@ -1,4 +1,4 @@
-#include "wav_pcm/wav_player_pcm.h"
+#include "wav_player/wav_player_pwm.h"
 
 #include "hardware/gpio.h"
 #include "hardware/pwm.h"
@@ -60,7 +60,7 @@ void on_pwm_wrap0() {
 }
 }  // namespace
 
-WavPlayerPcm::WavPlayerPcm(int pwm_gpio) : pwm_gpio_(pwm_gpio) {
+WavPlayerPwm::WavPlayerPwm(int pwm_gpio) : pwm_gpio_(pwm_gpio) {
   pwm_pin = pwm_gpio;
   reps = 4;
   rep_count = 0;
@@ -83,13 +83,13 @@ WavPlayerPcm::WavPlayerPcm(int pwm_gpio) : pwm_gpio_(pwm_gpio) {
   irq_set_enabled(PWM_IRQ_WRAP, true);
 }
 
-WavPlayerPcm::~WavPlayerPcm() {
+WavPlayerPwm::~WavPlayerPwm() {
   // disable the PWM interrupt
   pwm_set_irq_enabled(slice_num_, false);
   irq_set_enabled(PWM_IRQ_WRAP, false);
 }
 
-void WavPlayerPcm::play(const WaveFile* file, bool loop) {
+void WavPlayerPwm::play(const WaveFile* file, bool loop) {
   wav_length = file->GetDataSize();
   wav_data = file->GetData();
   wav_bits_per_sample = file->GetWaveFormat().bits_per_sample;
@@ -129,12 +129,12 @@ void WavPlayerPcm::play(const WaveFile* file, bool loop) {
   pwm_init(slice_num_, &config, true);
 }
 
-void WavPlayerPcm::stop() {
+void WavPlayerPwm::stop() {
   pwm_set_enabled(slice_num_, false);
   wav_position = 0;
 }
 
-bool WavPlayerPcm::isPlaying() {
+bool WavPlayerPwm::isPlaying() {
   return !done_playing;
 }
 }  // namespace crynsnd
