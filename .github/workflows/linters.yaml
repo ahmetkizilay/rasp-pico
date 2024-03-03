@@ -21,7 +21,7 @@ jobs:
         # Filter out deleted files (we can't lint-check non-existent files)
         # We may need to handle some other types of changes, add them as needed.
         run: |
-          modified_files=$(git diff --name-status origin/${{ github.base_ref }} -r | awk '$1 != "D" {print $2}' | xargs)
+          modified_files=$(git diff --name-status origin/${{ github.base_ref }} -r | awk '$1 ~ /^[^RD]/ {print $2}' | xargs)
           echo "modified_files=$modified_files" >> $GITHUB_OUTPUT
       - name: Assert new line at the end of line
         run: |
