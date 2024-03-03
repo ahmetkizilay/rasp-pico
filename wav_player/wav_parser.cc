@@ -1,4 +1,4 @@
-#include "wav_pcm/wav_parser.h"
+#include "wav_player/wav_parser.h"
 
 #include <cstdint>
 #include <cstring>

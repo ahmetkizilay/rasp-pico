@@ -1,5 +1,5 @@
-#ifndef __crynsnd_wav_pcm_wav_parser_h
-#define __crynsnd_wav_pcm_wav_parser_h
+#ifndef __crynsnd_wav_player_wav_parser_h
+#define __crynsnd_wav_player_wav_parser_h
 
 #include <cstdint>
 #include <memory>
@@ -36,4 +36,4 @@ class WaveFile {
 
 }  // namespace crynsnd
 
-#endif  // __crynsnd_wav_pcm_wav_parser_h
+#endif  // __crynsnd_wav_player_wav_parser_h

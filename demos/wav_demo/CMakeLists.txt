@@ -11,9 +11,8 @@ target_include_directories(${CURRENT_TARGET_NAME} PRIVATE
 )
 target_link_libraries(${CURRENT_TARGET_NAME} 
   pico_stdlib
-  hardware_pwm
   adafruit_macropad 
-  wav_pcm
+  wav_player
 )
 
 pico_enable_stdio_usb(${CURRENT_TARGET_NAME} 1)
