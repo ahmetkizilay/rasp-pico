@@ -1,3 +1,4 @@
+#include <cmath>
 #include <stdio.h>
 
 #include "hardware/timer.h"
@@ -49,12 +50,29 @@ int main() {
   bool print_timing_clock = false;
   int message_length = 3;
 
+  const size_t pulse_buffer_size = 12;
+  int32_t last_pulse = 0;
+  int pulse_index = 0;
+
   while (true) {
     char c = uart_getc(UART_ID);
     if (c > 127) {
       new_message = true;
       message_index = 0;
       time_received = time_us_32();
+      
+      // detect tempo.
+      if (c == 0XF8) {
+        if (pulse_index == 0) {
+          // calculate difference between the first and last pulse in the buffer.
+          // 24 pulses per quarter note.
+          double tempo = 60000000.0 / (time_received - last_pulse) / (24 / pulse_buffer_size);
+          tempo = round(tempo * 2) / 2;
+          printf("Tempo: %.1f BPM\n", tempo); 
+          last_pulse = time_received;
+        }
+        pulse_index = (pulse_index + 1) % pulse_buffer_size;
+      }
 
       // Determine message length
       switch (c >> 4) {
