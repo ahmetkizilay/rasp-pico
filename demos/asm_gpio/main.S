@@ -8,6 +8,15 @@
 #include "hardware/regs/io_bank0.h"
 #include "hardware/regs/pads_bank0.h"
 
+#if defined(PICO_RP2040)
+  .equ FUNC_SEL_SIO_GPIO3, IO_BANK0_GPIO3_CTRL_FUNCSEL_VALUE_SIO_3
+#elif defined(PICO_RP2350)
+  .equ FUNC_SEL_SIO_GPIO3, IO_BANK0_GPIO3_CTRL_FUNCSEL_VALUE_SIOB_PROC_3
+#else
+  // You can raise an error if an unsupported platform is targeted
+  #error "Unsupported PICO_PLATFORM for FUNC_SEL_SIO_GPIO3 definition"
+#endif
+
   .EQU LED_PIN1, 18
   .EQU LED_PIN2, 19
   .EQU LED_PIN3, 20
@@ -72,7 +81,10 @@ gpioinit:
   LSL R0, #3
   LDR R2, iobank0
   ADD R2, R0
-  MOV R1, #IO_BANK0_GPIO3_CTRL_FUNCSEL_VALUE_SIO_3
+@ This is only defined for RP2040, so it won't work for other CPUs.
+@ For RP2040, the corresponding value is IO_BANK0_GPIO3_CTRL_FUNCSEL_VALUE_SIO_3
+@ For RP2350, the corresponding value is IO_BANK0_GPIO3_CTRL_FUNCSEL_VALUE_SIOB_PROC_3
+  MOV R1, #FUNC_SEL_SIO_GPIO3
   STR R1, [R2, #IO_BANK0_GPIO0_CTRL_OFFSET]
   BX LR
 
