@@ -14,6 +14,11 @@ if (EXISTS ${picoVscode})
     include(${picoVscode})
 endif()
 # ====================================================================================
-set(PICO_BOARD pico2 CACHE STRING "Board type")
+
+# IMPORTANT: After changing this value make sure to clean CMake Cache and rebuild.
+# See README for explicit commands
+set(PICO_BOARD pico CACHE STRING "Board type")
+# set(PICO_BOARD pico2 CACHE STRING "Board type")
+
 
 include(${PICO_SDK_PATH}/external/pico_sdk_import.cmake)

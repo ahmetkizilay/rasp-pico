@@ -4,9 +4,10 @@
 ; Write the least significant bit to the out pin group.
 
 loop:
-    pull
-    out pins, 1
-    jmp loop
+    pull        ; Wait until there is data in the TX FIFO.
+                ; Once data is found moves it to OSR (Output Shift Register)
+    out pins, 1 ; Write the least significant bit to the out pin group.
+    jmp loop    ; Repeat
 
 
 % c-sdk {
