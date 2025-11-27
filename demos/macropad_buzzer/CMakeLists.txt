@@ -5,6 +5,7 @@ add_executable(macropad_buzzer
 target_link_libraries(macropad_buzzer
   pico_stdlib
   hardware_pwm
+  hardware_clocks
 )
 
 pico_enable_stdio_usb(macropad_buzzer 1)

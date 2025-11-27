@@ -19,7 +19,7 @@ namespace {
 offset=0x0
 for file in $(ls -1 "$data_dir"*); do
   file_name=$(basename $file)
-  file_size=$(stat -c %s $file)
+  file_size=$(wc -c < $file | awk '{print $1}')
   file_size=$(printf "0x%X" $file_size)
   echo "    {\"$file_name\", {$file_size, $offset}}," >> generated/extra_data.h
   offset=$((offset + file_size))

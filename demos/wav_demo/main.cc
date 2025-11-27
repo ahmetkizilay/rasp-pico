@@ -4,6 +4,7 @@
 #include "adafruit_macropad/adafruit_macropad.h"
 #include "extra_data.h"
 #include "pico/stdlib.h"
+#include "hardware/clocks.h"
 #include "wav_player/wav_parser.h"
 #include "wav_player/wav_player_pwm.h"
 

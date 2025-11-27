@@ -6,9 +6,9 @@ if (NOT target_type STREQUAL "EXECUTABLE")
   message(FATAL_ERROR "${TARGET} is not executable!")
 endif ()
 add_custom_target(${TARGET}_flash
-  COMMAND sudo picotool info
-  COMMAND sudo picotool load $<TARGET_FILE_DIR:${TARGET}>/${TARGET}.uf2
-  COMMAND sudo picotool reboot
+  COMMAND picotool info
+  COMMAND picotool load $<TARGET_FILE_DIR:${TARGET}>/${TARGET}.uf2
+  COMMAND picotool reboot
   DEPENDS ${TARGET}
 )
 endmacro()

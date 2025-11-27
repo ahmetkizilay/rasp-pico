@@ -2,6 +2,7 @@
 #define __crynsnd_font_h__
 
 #include <cstdio>
+#include <cstdint>
 
 namespace crynsnd {
 namespace fonts {

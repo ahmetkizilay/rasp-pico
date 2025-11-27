@@ -13,6 +13,7 @@ target_link_libraries(${CURRENT_TARGET_NAME}
   pico_stdlib
   adafruit_macropad 
   wav_player
+  hardware_clocks
 )
 
 pico_enable_stdio_usb(${CURRENT_TARGET_NAME} 1)
